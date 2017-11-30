@@ -10,3 +10,6 @@
 */target/*
 onlinedc/target/
 dcbackend/target/
+*.classpath*
+*.project*
+*.setting*
