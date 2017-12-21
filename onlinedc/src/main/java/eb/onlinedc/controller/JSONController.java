@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import eb.dcbackend.dao.AvanceVentaDAO;
+import eb.dcbackend.model.AvanceVenta;
 import eb.dcbackend.dao.SecondEntityDAO;
 import eb.dcbackend.model.SecondEntity;
 import eb.dcbackend.service.SecondEntityService;
@@ -22,22 +24,25 @@ public class JSONController {
 	@Autowired
 	private SecondEntityDAO secondEntityDAO;
 	
+	@Autowired
+	private SecondEntityService secondEntityService;
+	
+	@Autowired
+	private AvanceVentaDAO avanceVentaService;
+	
 	@RequestMapping(value = "/admin/entities", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SecondEntity> getEntities(){
 		return secondEntityDAO.list();
 	}
 	
-	@RequestMapping(value = "/{id}/entities", method = RequestMethod.GET)
+	@RequestMapping(value = "/admin/entities/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public SecondEntity getEntities(@PathVariable int id){
 		return secondEntityDAO.findById(id);
 	}
 
-	@Autowired
-	private SecondEntityService secondEntityService;
-
-	@RequestMapping(value = "/admin/SaveData", method = RequestMethod.POST,consumes="application/json",produces="application/json")
+	@RequestMapping(value = "/admin/savedata", method = RequestMethod.POST,consumes="application/json",produces="application/json")
 	@ResponseBody
 	public  List<String> SaveData(@RequestBody SecondEntity[] secondEntityArray){
         List<String> response = new ArrayList<String>();
@@ -56,6 +61,12 @@ public class JSONController {
 			secondEntityService.updateSecondEntity(secondEntity);
 		}
 		return secondEntity;
+	}
+	
+	@RequestMapping(value = "/admin/avanceventa", method = RequestMethod.GET)
+	@ResponseBody
+	public List<AvanceVenta> getAvanceVenta(){
+		return avanceVentaService.findAllAvancesVenta();
 	}
 	
 }
