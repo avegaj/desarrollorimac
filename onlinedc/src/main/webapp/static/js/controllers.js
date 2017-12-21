@@ -12,12 +12,9 @@ function datatablesCtrl($scope, $http, $compile, DTOptionsBuilder, DTColumnBuild
     vm.message = '';
     vm.editUser = editUser;
     vm.activateUser = activateUser;
-    vm.infoUser = infoUser;
     vm.dtInstance = {};
     vm.persons = {};
     vm.activate = '';
-    vm.nameuser = '';
-    vm.descriptionuser = '';
        
     vm.dtOptions = DTOptionsBuilder.fromSource('/onlinedc/json/data/admin/entities')
 	    .withPaginationType('full_numbers')
@@ -32,21 +29,18 @@ function datatablesCtrl($scope, $http, $compile, DTOptionsBuilder, DTColumnBuild
         DTColumnBuilder.newColumn('id')
         	.withTitle('ID')
         	.withOption("width","10%"),
-        DTColumnBuilder.newColumn(null)
+        DTColumnBuilder.newColumn('name')
         	.withTitle('Nombre')
-        	.withOption("width","30%")
-        	.renderWith(action1Html)
-        	.notSortable(),
+        	.withOption("width","30%"),
         DTColumnBuilder.newColumn('description')
         	.withTitle('Descripción')
-        	.withOption("width","30%")
-        	.notSortable(),
+        	.withOption("width","30%"),
         DTColumnBuilder.newColumn(null)
         	.withTitle('Acciones')
         	.withOption("width","15%")
         	.withClass('column_text_center')
         	.notSortable()
-            .renderWith(action2Html),
+            .renderWith(actionsHtml),
         DTColumnBuilder.newColumn(null)
         	.withTitle('Estado')
         	.withOption("width","15%")
@@ -55,42 +49,29 @@ function datatablesCtrl($scope, $http, $compile, DTOptionsBuilder, DTColumnBuild
         	.renderWith(switchHtml)
     ];
 
-    function editUser(data) {
-        vm.message = 'You are trying to edit the row: ' + JSON.stringify(data.name);
+    function editUser(person) {
+        vm.message = 'You are trying to edit the row: ' + JSON.stringify(person.name);
         // Edit some data and call server to make changes...
         // Then reload the data so that DT is refreshed
         // vm.dtInstance.reloadData();
     }
-    function activateUser(data) {
-    	vm.message = 'You are activate row: ' + JSON.stringify(data.activate);
+    function activateUser(person) {
+    	vm.message = 'You are activate row: ' + JSON.stringify(person.activate);
     	$http({
     		method: 'PUT',
-    		url: '/onlinedc/json/data/admin/activate/'+data.id,
-    		data: JSON.stringify(data),
+    		url: '/onlinedc/json/data/admin/activate/'+person.id,
+    		data: JSON.stringify(person),
     		headers:{
     			'Content-Type':'application/json'
     		}
     	})
     }
-    function infoUser(data) {
-    	vm.nameuser = data.name;
-    	vm.descriptionuser = data.description;
-    }
-    
     function createdRow(row, data, dataIndex) {
         // Recompiling so we can bind Angular directive to the DT
         $compile(angular.element(row).contents())($scope);
-        vm.persons[data.id] = data;
-        vm.nameuser = vm.persons[1].name;
-        vm.descriptionuser = vm.persons[1].description;
     }
     
-    function action1Html(data) {
-        vm.persons[data.id] = data;
-        return '<a class="client-link" ng-click="showCase.infoUser(showCase.persons[' + data.id + '])">'+data.name+'</a>'
-    }
-    
-    function action2Html(data, type, full, meta) {
+    function actionsHtml(data, type, full, meta) {
         vm.persons[data.id] = data;
         return '<button type="button" class="btn btn-warning btn-circle" ng-click="showCase.editUser(showCase.persons[' + data.id + '])">' +
         '   <i class="fa fa-edit"></i>' +
@@ -100,7 +81,7 @@ function datatablesCtrl($scope, $http, $compile, DTOptionsBuilder, DTColumnBuild
     function switchHtml(data, type, full, meta) {
         vm.persons[data.id] = data;
         return '<input type="checkbox" class="js-switch" ' +
-        'ui-switch="{size:' + "'small'" + ', color:' + "'#0080ff'" + '}" ' +
+        'ui-switch="{size:' + "'small'" + ', color:' + "'#1AB394'" + '}" ' +
         'checked '+
         'ng-model="showCase.persons[' + data.id + '].activate"' +
         'ng-change="showCase.activateUser(showCase.persons[' + data.id + '])">' +
@@ -110,206 +91,174 @@ function datatablesCtrl($scope, $http, $compile, DTOptionsBuilder, DTColumnBuild
     }
 }
 
-function dashboardVentas($http) {
-    var vm = this;
-    
-    vm.message = '';
-    vm.worksite = 0;
-    vm.worksite_p = 0;
-    vm.worksite_c1 = '';
-    vm.worksite_c2 = '';
-    vm.vida = 0;
-    vm.vida_p = 0;
-    vm.vida_c1 = '';
-    vm.vida_c2 = '';
-    vm.telemarketing = 0;
-    vm.telemarketing_p = 0;
-    vm.telemarketing_c1 = '';
-    vm.telemarketing_c2 = '';
-    vm.polizas = 0;
-    vm.polizas_p = 0;
-    vm.polizas_c1 = '';
-    vm.polizas_c2 = '';
-    vm.vta_nueva = 0;
-    vm.vta_nueva_p = 0;
-    vm.vta_nueva_c1 = '';
-    vm.vta_nueva_c2 = '';
-    
-	$http({
-		method: 'GET',
-		url: '/onlinedc/json/data/admin/avanceventa',
-	}).then(function successCallback(response){
-		;
-		var l = response.data.length;
-	    var data1 = [];
-	    var data2 = [];
-	    
-	    for (var i = 0; i < l; i++) { 
-	    	data1.push([gd(response.data[i].year, response.data[i].month, response.data[i].day), response.data[i].production]);
-	    	data2.push([gd(response.data[i].year, response.data[i].month, response.data[i].day), response.data[i].prima_issued]);
-	    	vm.polizas = vm.polizas + response.data[i].production;
-	    	vm.polizas_p = vm.polizas_p + 100;
-	    	vm.vta_nueva = vm.vta_nueva + response.data[i].prima_issued;
-	    	vm.vta_nueva_p = vm.vta_nueva_p + 100;
+function dashboardVentas() {
 
-	    	switch(response.data[i].channel) {
-		        case "Worksite":
-		        	vm.worksite = vm.worksite + response.data[i].prima_issued;
-		        	vm.worksite_p = vm.worksite_p + 100;
-		            break;
-		        case "Vida":
-		        	vm.vida = vm.vida + response.data[i].prima_issued;
-		        	vm.vida_p = vm.vida_p + 100;
-		            break;
-		        case "Telemarketing":
-		        	vm.telemarketing = vm.telemarketing + response.data[i].prima_issued;
-		        	vm.telemarketing_p = vm.telemarketing_p + 100;
-		            break;
-		        default:
-		            ""
-	    	}
-			if (vm.worksite_p > 100){
-				vm.worksite_c1="text-success";
-				vm.worksite_c2="fa fa-bolt";
-			}
-			else{
-				vm.worksite_c1="text-danger";
-				vm.worksite_c2="fa fa-level-down";
-			}
-			if (vm.vida_p > 100){
-				vm.vida_c1="text-success";
-				vm.vida_c2="fa fa-bolt";
-			}
-			else{
-				vm.vida_c1="text-danger";
-				vm.vida_c2="fa fa-level-down";
-			}
-			if (vm.telemarketing_p > 100){
-				vm.telemarketing_c1="text-success";
-				vm.telemarketing_c2="fa fa-bolt";
-			}
-			else{
-				vm.telemarketing_c1="text-danger";
-				vm.telemarketing_c2="fa fa-level-down";
-			}
-			if (vm.polizas_p > 100){
-				vm.polizas_c1="text-success";
-				vm.polizas_c2="fa fa-level-up";
-			}
-			else{
-				vm.polizas_c1="text-danger";
-				vm.polizas_c2="fa fa-level-down";
-			}
-			if (vm.vta_nueva_p > 100){
-				vm.vta_nueva_c1="text-success";
-				vm.vta_nueva_c2="fa fa-level-up";
-			}
-			else{
-				vm.vta_nueva_c1="text-danger";
-				vm.vta_nueva_c2="fa fa-level-down";
-			}
-	    }
-	    var dataset = [
-	        {
-	            label: "Primas",
-	            grow:{stepMode:"linear"},
-	            data: data2,
-	            color: "#1ab394",
-	            bars: {
-	                show: true,
-	                align: "center",
-	                barWidth: 24 * 60 * 60 * 600,
-	                lineWidth: 0
-	            }
+    var data1 = [
+        [gd(2012, 1, 1), 7],
+        [gd(2012, 1, 2), 6],
+        [gd(2012, 1, 3), 4],
+        [gd(2012, 1, 4), 8],
+        [gd(2012, 1, 5), 9],
+        [gd(2012, 1, 6), 7],
+        [gd(2012, 1, 7), 5],
+        [gd(2012, 1, 8), 4],
+        [gd(2012, 1, 9), 7],
+        [gd(2012, 1, 10), 8],
+        [gd(2012, 1, 11), 9],
+        [gd(2012, 1, 12), 6],
+        [gd(2012, 1, 13), 4],
+        [gd(2012, 1, 14), 5],
+        [gd(2012, 1, 15), 11],
+        [gd(2012, 1, 16), 8],
+        [gd(2012, 1, 17), 8],
+        [gd(2012, 1, 18), 11],
+        [gd(2012, 1, 19), 11],
+        [gd(2012, 1, 20), 6],
+        [gd(2012, 1, 21), 6],
+        [gd(2012, 1, 22), 8],
+        [gd(2012, 1, 23), 11],
+        [gd(2012, 1, 24), 13],
+        [gd(2012, 1, 25), 7],
+        [gd(2012, 1, 26), 9],
+        [gd(2012, 1, 27), 9],
+        [gd(2012, 1, 28), 8],
+        [gd(2012, 1, 29), 5],
+        [gd(2012, 1, 30), 8],
+        [gd(2012, 1, 31), 25]
+    ];
 
-	        },
-	        {
-	            label: "Pólizas",
-	            grow:{stepMode:"linear"},
-	            data: data1,
-	            yaxis: 2,
-	            color: "#1C84C6",
-	            lines: {
-	                lineWidth: 1,
-	                show: true,
-	                fill: true,
-	                fillColor: {
-	                    colors: [
-	                        {
-	                            opacity: 0.2
-	                        },
-	                        {
-	                            opacity: 0.2
-	                        }
-	                    ]
-	                }
-	            }
-	        }
-	    ];
+    var data2 = [
+        [gd(2012, 1, 1), 800],
+        [gd(2012, 1, 2), 500],
+        [gd(2012, 1, 3), 600],
+        [gd(2012, 1, 4), 700],
+        [gd(2012, 1, 5), 500],
+        [gd(2012, 1, 6), 456],
+        [gd(2012, 1, 7), 800],
+        [gd(2012, 1, 8), 589],
+        [gd(2012, 1, 9), 467],
+        [gd(2012, 1, 10), 876],
+        [gd(2012, 1, 11), 689],
+        [gd(2012, 1, 12), 700],
+        [gd(2012, 1, 13), 500],
+        [gd(2012, 1, 14), 600],
+        [gd(2012, 1, 15), 700],
+        [gd(2012, 1, 16), 786],
+        [gd(2012, 1, 17), 345],
+        [gd(2012, 1, 18), 888],
+        [gd(2012, 1, 19), 888],
+        [gd(2012, 1, 20), 888],
+        [gd(2012, 1, 21), 987],
+        [gd(2012, 1, 22), 444],
+        [gd(2012, 1, 23), 999],
+        [gd(2012, 1, 24), 567],
+        [gd(2012, 1, 25), 786],
+        [gd(2012, 1, 26), 666],
+        [gd(2012, 1, 27), 888],
+        [gd(2012, 1, 28), 900],
+        [gd(2012, 1, 29), 178],
+        [gd(2012, 1, 30), 555],
+        [gd(2012, 1, 31), 993]
+    ];
 
 
-	    var options = {
-	        grid: {
-	            hoverable: true,
-	            clickable: true,
-	            tickColor: "#d5d5d5",
-	            borderWidth: 0,
-	            color: '#d5d5d5'
-	        },
-	        colors: ["#1ab394", "#464f88"],
-	        tooltip: true,
-	        xaxis: {
-	            mode: "time",
-	            tickSize: [3, "day"],
-	            tickLength: 0,
-	            axisLabel: "Date",
-	            axisLabelUseCanvas: true,
-	            axisLabelFontSizePixels: 12,
-	            axisLabelFontFamily: 'Arial',
-	            axisLabelPadding: 10,
-	            color: "#d5d5d5"
-	        },
-	        yaxes: [
-	            {
-	                position: "left",
-	                max: 1070,
-	                color: "#d5d5d5",
-	                axisLabelUseCanvas: true,
-	                axisLabelFontSizePixels: 12,
-	                axisLabelFontFamily: 'Arial',
-	                axisLabelPadding: 3
-	            },
-	            {
-	                position: "right",
-	                color: "#d5d5d5",
-	                axisLabelUseCanvas: true,
-	                axisLabelFontSizePixels: 12,
-	                axisLabelFontFamily: ' Arial',
-	                axisLabelPadding: 67
-	            }
-	        ],
-	        legend: {
-	            noColumns: 1,
-	            labelBoxBorderColor: "#d5d5d5",
-	            position: "nw"
-	        }
+    var dataset = [
+        {
+            label: "Primas",
+            grow:{stepMode:"linear"},
+            data: data2,
+            color: "#1ab394",
+            bars: {
+                show: true,
+                align: "center",
+                barWidth: 24 * 60 * 60 * 600,
+                lineWidth: 0
+            }
 
-	    };
+        },
+        {
+            label: "Pólizas",
+            grow:{stepMode:"linear"},
+            data: data1,
+            yaxis: 2,
+            color: "#1C84C6",
+            lines: {
+                lineWidth: 1,
+                show: true,
+                fill: true,
+                fillColor: {
+                    colors: [
+                        {
+                            opacity: 0.2
+                        },
+                        {
+                            opacity: 0.2
+                        }
+                    ]
+                }
+            }
+        }
+    ];
 
-	    function gd(year, month, day) {
-	        return new Date(year, month - 1, day).getTime();
-	    }
 
-	    /**
-	     * Definition of variables
-	     * Flot chart
-	     */
-	    vm.flotData = dataset;
-	    vm.flotOptions = options;
-	    
-	}, function errorCallback(response){
-		vm.message = "Error al cargar data"
-	});
+    var options = {
+        grid: {
+            hoverable: true,
+            clickable: true,
+            tickColor: "#d5d5d5",
+            borderWidth: 0,
+            color: '#d5d5d5'
+        },
+        colors: ["#1ab394", "#464f88"],
+        tooltip: true,
+        xaxis: {
+            mode: "time",
+            tickSize: [3, "day"],
+            tickLength: 0,
+            axisLabel: "Date",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Arial',
+            axisLabelPadding: 10,
+            color: "#d5d5d5"
+        },
+        yaxes: [
+            {
+                position: "left",
+                max: 1070,
+                color: "#d5d5d5",
+                axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12,
+                axisLabelFontFamily: 'Arial',
+                axisLabelPadding: 3
+            },
+            {
+                position: "right",
+                color: "#d5d5d5",
+                axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12,
+                axisLabelFontFamily: ' Arial',
+                axisLabelPadding: 67
+            }
+        ],
+        legend: {
+            noColumns: 1,
+            labelBoxBorderColor: "#d5d5d5",
+            position: "nw"
+        }
+
+    };
+
+    function gd(year, month, day) {
+        return new Date(year, month - 1, day).getTime();
+    }
+
+    /**
+     * Definition of variables
+     * Flot chart
+     */
+    this.flotData = dataset;
+    this.flotOptions = options;
 }
 
 
@@ -352,7 +301,7 @@ function excelCtrl($http, $scope) {
     $scope.SaveData = function(excelData){
     	$http({
     		method: 'POST',
-    		url: '/onlinedc/json/data/admin/savedata',
+    		url: '/onlinedc/json/data/admin/SaveData',
     		data: JSON.stringify(excelData),
     		headers:{
     			'Content-Type':'application/json'
@@ -365,7 +314,7 @@ function excelCtrl($http, $scope) {
     			vm.message = "Failed";
     		}
     	}, function errorCallback(error){
-    		vm.message = "Error al cargar hoja de Excel";
+    		vm.message = JSON.stringify(excelData);
     	})
     }
 }

@@ -58,7 +58,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider) {
         .state('content.usuarios', {
             url: "/usuarios",
             templateUrl: "home_admin/usuarios",
-            data: { pageTitle: 'Usuarios' },
+            data: { pageTitle: 'Administrador' },
             resolve: {
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([

@@ -9,7 +9,7 @@
 	<div class="col-lg-2"></div>
 </div>
 
-<div class="wrapper wrapper-content" ng-controller="dashboardVentas as chart">
+<div class="wrapper wrapper-content">
 	<div class="row">
 		<div class="col-lg-3">
 			<div class="ibox float-e-margins">
@@ -18,8 +18,8 @@
 					<h5><a ui-sref="content.welcome">Worksite</a></h5>
 				</div>
 				<div class="ibox-content">
-					<h1 class="no-margins">$ {{chart.worksite}}</h1>
-					<div class="stat-percent font-bold {{chart.worksite_c1}}">{{chart.worksite_p}}%<i class="{{chart.worksite_c2}}"></i>
+					<h1 class="no-margins">$ 886,200</h1>
+					<div class="stat-percent font-bold text-success">98%<i class="fa fa-bolt"></i>
 					</div>
 					<small>Total primas</small>
 				</div>
@@ -32,8 +32,8 @@
 					<h5><a ui-sref="content.welcome">Vida</a></h5>
 				</div>
 				<div class="ibox-content">
-					<h1 class="no-margins">$ {{chart.vida}}</h1>
-					<div class="stat-percent font-bold {{chart.vida_c1}}">{{chart.vida_p}}%<i class="{{chart.vida_c2}}"></i>
+					<h1 class="no-margins">$ 275,800</h1>
+					<div class="stat-percent font-bold text-success">45%<i class="fa fa-bolt"></i>
 					</div>
 					<small>Total primas</small>
 				</div>
@@ -46,8 +46,8 @@
 					<h5><a ui-sref="content.welcome">Telemarketing</a></h5>
 				</div>
 				<div class="ibox-content">
-					<h1 class="no-margins">$ {{chart.telemarketing}}</h1>
-					<div class="stat-percent font-bold {{chart.telemarketing_c1}}">{{chart.telemarketing_p}}%<i class="{{chart.telemarketing_c2}}"></i>
+					<h1 class="no-margins">$ 106,120</h1>
+					<div class="stat-percent font-bold text-success">50%<i class="fa fa-bolt"></i>
 					</div>
 					<small>Total primas</small>
 				</div>
@@ -74,16 +74,16 @@
 				<div class="ibox-title">
 					<h5>Canales</h5>
 					<div class="pull-right">
-						<div class="btn-group" ng-init="tab = 1">
-							<button type="button" class="btn btn-xs btn-white" ng-class="{active:tab===1}" href ng-click="tab = 1">Diario</button>
-							<button type="button" class="btn btn-xs btn-white" ng-class="{active:tab===2}" href ng-click="tab = 2">Mensual</button>
+						<div class="btn-group">
+							<button type="button" class="btn btn-xs btn-white active">Diario</button>
+							<button type="button" class="btn btn-xs btn-white">Mensual</button>
 						</div>
 					</div>
 				</div>
-				<div class="ibox-content" ng-show="tab === 1">
+				<div class="ibox-content">
 					<div class="row">
 						<div class="col-lg-9">
-							<div class="flot-chart">
+							<div class="flot-chart" ng-controller="dashboardVentas as chart">
 								<div flot class="flot-chart-content" dataset="chart.flotData"
 									options="chart.flotOptions"></div>
 							</div>
@@ -91,25 +91,25 @@
 						<div class="col-lg-3">
 							<ul class="stat-list">
 								<li>
-									<h2 class="no-margins"> {{chart.polizas}}</h2>
+									<h2 class="no-margins">2,346</h2>
 									<small>Pólizas</small>
-									<div class="stat-percent font-bold {{chart.polizas_c1}}">20%<i class="{{chart.polizas_c2}}"></i>
+									<div class="stat-percent font-bold text-info">20%<i class="fa fa-level-up"></i>
 									</div>
 									<div class="progress progress-mini">
 										<div style="width: 20%;" class="progress-bar"></div>
 									</div>
 								</li>
 								<li>
-									<h2 class="no-margins ">$  {{chart.vta_nueva}}</h2>
+									<h2 class="no-margins ">$ 4,422</h2>
 									<small>Venta nueva</small>
-									<div class="stat-percent font-bold {{chart.vta_nueva_c1}}">60%<i class="{{chart.vta_nueva_c2}}"></i>
+									<div class="stat-percent font-bold text-info">60%<i class="fa fa-level-up"></i>
 									</div>
 									<div class="progress progress-mini">
 										<div style="width: 60%;" class="progress-bar"></div>
 									</div>
 								</li>
 								<li>
-									<h2 class="no-margins ">$  1,980</h2>
+									<h2 class="no-margins ">$ 9,180</h2>
 									<small>Contable</small>
 									<div class="stat-percent font-bold text-info">35%<i class="fa fa-level-up"></i>
 									</div>
@@ -117,10 +117,10 @@
 										<div style="width: 35%;" class="progress-bar"></div>
 									</div>
 								</li>
-							</ul>
 						</div>
 					</div>
 				</div>
+
 			</div>
 		</div>
 	</div>
